@@ -1,0 +1,416 @@
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>COMP9321 ASS3</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+        <script type="text/javascript" src="{{url_for('static', filename='js/jquery-1.11.0.min.js')}}"></script>
+        <!--link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script-->
+		<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+		<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		{% if error == 'error1' %}
+			<script type="text/javascript">
+				alert('You must select one feature to predict')
+			</script>
+		{% elif error == 'error2' %}
+			<script type="text/javascript">
+				alert(' Please choose a classification for feature diagnosis')
+			</script>
+		{% endif %}
+        <div style="height: 300px;background: linear-gradient(to bottom, rgba(255,255,255,0),rgba(255,255,255,0), rgba(255,255,255,0), rgba(255,255,255,1)), url('../static/background.png') no-repeat center;background-size: cover;margin-top: -2%;">
+        	<center>
+        	<h1 style="text-shadow:2px 2px 2px #454545;padding-top: 4%;"><font color="white">Breast Cancer Classification and Prediction</font></h1>
+        	<h2 style="text-shadow:2px 2px 2px #454545;"><font color="white">Your personal scientific centre</font></h2>
+        	</center>
+        </div>
+        <div style="background-color: white;">
+	        <div style="position: relative;margin-left: 40%;padding-top: 20px;width: 220px;">
+				<ul class="nav nav-pills" style="width: 300px;">
+				{% if which == 'class' %}
+				  <li role="presentation" class="active" id="Classification"><a>Classification</a></li>
+				  <li role="presentation" id="Prediction"><a>Prediction</a></li>
+				{% elif which == 'pre' %}
+				  <li role="presentation" id="Classification"><a>Classification</a></li>
+				  <li role="presentation" class="active" id="Prediction"><a>Prediction</a></li>
+				{% endif %}
+				</ul>
+			</div>
+			<br>
+			<h4 id='h4_cla' style="display: block;margin-left: 19%"><font color="lightblue">Determine whether there is cancer according to other data</font></h4>
+			<h4 id='h4_pre' style="display: none;margin-left: 19%"><font color="lightblue">Calculate an unknown data value according to other data</font></h4>
+			{% if which == 'class'%}
+			<div id='border_large' style="margin-left: 19%;border-left:2px solid #000;border-top:2px solid #000;border-bottom:2px solid #000;border-right:2px solid #000;width: 850px;height: 380px;background-color: white;">
+			{% elif which == 'pre' %}
+			<div id='border_large' style="margin-left: 19%;border-left:2px solid #000;border-top:2px solid #000;border-bottom:2px solid #000;border-right:2px solid #000;width: 850px;height: 480px;background-color: white;">
+			{% endif %}
+				<form method="POST" action="calculate">
+					<div class="row" style="margin-left: 20px;">
+					{% if which == 'class'%}
+					<div id="Classification_div" style="display: block; margin-top: 10px; width: 270px;float: left">
+						<input id="if_clas" type="hidden" name="if_clas" value="1">
+					{% elif which == 'pre' %}
+					<div id="Classification_div" style="display: none; margin-top: 10px; width: 270px;float: left">
+						<input id="if_clas" type="hidden" name="if_clas" value="0">
+					{% endif %}
+						<b>Input 5 features to classify diagnosis</b>&nbsp;<span id='question' class="glyphicon glyphicon-question-sign" aria-hidden="true" title='Why only 5 features?' data-container="body" data-toggle="popover" data-placement="top" data-content="These five parameters have the most critical effect on the results."></span>
+						<br/><br/>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area Mean</span>
+						  <input id='cla_am' type="number" class="form-control" placeholder="143.5 ~ 2501.0" aria-describedby="basic-addon1" name="cla_am" title='What is Area Mean?' data-container="body" data-toggle="popover" data-placement="right" data-content="Mean size of the measured area." role="input" data-trigger="focus" max=2501.0 min=143.5 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area SE</span>
+						  <input id='cla_as' type="number" class="form-control" placeholder="6.802 ~ 542.2" aria-describedby="basic-addon1" name="cla_as" title='What is Area SE?' data-container="body" data-toggle="popover" data-placement="right" data-content="Standard error of the measured area size." role="input" data-trigger="focus" max=542.2 min=6.802 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area Worst</span>
+						  <input id='cla_aw' type="number" class="form-control" placeholder="185.2 ~ 4254.0" aria-describedby="basic-addon1" name="cla_aw" title='What is Area Worst?' data-container="body" data-toggle="popover" data-placement="right" data-content="Worst value of measured area size." role="input" data-trigger="focus" min=185.2 max=4254.0 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Perimeter Mean</span>
+						  <input id='cla_pm' type="number" class="form-control" placeholder="43.79 ～ 188.5" aria-describedby="basic-addon1" name="cla_pm" title='What is Perimeter Mean' data-container="body" data-toggle="popover" data-placement="right" data-content="Mean size of the core tumor." role="input" data-trigger="focus" max=188.5 min=43.79 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Perimeter Worst</span>
+						  <input id='cla_pw' type="number" class="form-control" placeholder="50.41 ~ 251.2" aria-describedby="basic-addon1" name="cla_pw" title='What is Perimeter Worst?' data-container="body" data-toggle="popover" data-placement="right" data-content="Worst size of the core tumor." role="input" data-trigger="focus" max=251.2 min=50.41 step = 0.00001>
+						</div>
+						<br>
+					</div>
+					{% if which == 'class'%}
+					<div id="prediction_div" style="display: none; margin-top: 10px; width: 270px;float: left">
+						<input id="if_pre" type="hidden" name="if_pre" value="0">
+					{% elif which == 'pre' %}
+					<div id="prediction_div" style="display: block; margin-top: 10px; width: 270px;float: left">
+						<input id="if_pre" type="hidden" name="if_pre" value="1">
+					{% endif %}
+						<b>Fill in 5 features to predict a feature</b>&nbsp;<span id='question2' class="glyphicon glyphicon-question-sign" aria-hidden="true" title='Why only 5 features?' data-container="body" data-toggle="popover" data-placement="top" data-content="These five parameters have the most critical effect on the results."></span>
+						<br/><br/>
+						<select onchange="choose()" id='Choose' name='pre_word' class="form-control" style="width: 290px;">
+							<option selected="selected" value="none">--choose prediction feature--</option>
+							<option value="area_mean">Area_mean</option>
+							<option value="area_se">Area_se</option>
+							<option value="area_worst">Area_worst</option>
+							<option value="perimeter_mean">Perimeter_mean</option>
+							<option value="perimeter_worst">Perimeter_worst</option>
+						</select>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Diagnosis</span>&emsp;&emsp;&emsp;
+						  <input id='pre_dia_A' type="radio" value="B" name="pre_dia"> B &emsp;&emsp;&emsp;
+						  <input id='pre_dia_B' type="radio" value="M" name="pre_dia"> M
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area Mean</span>
+						  <input id='pre_am' type="number" class="form-control" placeholder="143.5 ~ 2501.0" aria-describedby="basic-addon1" name="pre_am" title='What is Area Mean?' data-container="body" data-toggle="popover" data-placement="right" data-content="Mean size of the measured area." role="input" data-trigger="focus" max=2501.0 min=143.5 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area SE</span>
+						  <input id='pre_as' type="number" class="form-control" placeholder="6.802 ~ 542.2" aria-describedby="basic-addon1" name="pre_as" title='What is Area SE?' data-container="body" data-toggle="popover" data-placement="right" data-content="Standard error of the measured area size." role="input" data-trigger="focus" max=542.2 min=6.802 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Area Worst</span>
+						  <input id='pre_aw' type="number" class="form-control" placeholder="185.2 ~ 4254.0" aria-describedby="basic-addon1" name="pre_aw" title='What is Area Worst?' data-container="body" data-toggle="popover" data-placement="right" data-content='Worst value of measured area size.' role="input" data-trigger="focus" min=185.2 max=4254.0 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Perimeter Mean</span>
+						  <input id='pre_pm' type="number" class="form-control" placeholder="43.79 ～ 188.5" aria-describedby="basic-addon1" name="pre_pm" title='What is Perimeter Mean?' data-container="body" data-toggle="popover" data-placement="right" data-content="Mean size of the core tumor." role="input" data-trigger="focus" max=188.5 min=43.79 step = 0.00001>
+						</div>
+						<br>
+						<div class="input-group" style="width: 290px;">
+						  <span class="input-group-addon" id="basic-addon1" style="width: 130px;">Perimeter Worst</span>
+						  <input id='pre_pw' type="number" class="form-control" placeholder="50.41 ~ 251.2" aria-describedby="basic-addon1" name="pre_pw" title='What is Perimeter Worst?' data-container="body" data-toggle="popover" data-placement="right" data-content="Worst size of the core tumor." role="input" data-trigger="focus" max=251.2 min=50.41 step = 0.00001>
+						</div>
+						<br>
+					</div>
+					{% if status == 0 %}
+					<div id="show_class" style="display: block;float: left;margin-top: 10px;width: 190px;height: 250px;margin-left: 60px;">
+						<b>Classifaction results</b>
+						<br/><br/>
+						<div class="panel panel-primary" style="height: 250px;">
+							<div style="padding-left:10px;padding-top: 5px;">Area Mean: None</div>
+							<br>
+							<div style="padding-left:10px;">Area SE: None</div>
+							<br>
+							<div style="padding-left:10px;">Area Worst: None</div>
+							<br>
+							<div style="padding-left:10px;">Perimeter Mean: None</div>
+							<br>
+							<div style="padding-left:10px;">Perimeter Worst: None</div>
+						</div>
+					</div>
+					<div id="show_pred" style="display: none;float: left;margin-top: 10px;width: 190px;height: 250px;margin-left: 60px;">
+						<b>Prediction results</b>
+						<br/><br/>
+						<div class="panel panel-primary" style="height: 250px;">
+							<div style="padding-left:10px;padding-top: 5px;">Diagnosis: None</div>
+							<br>
+							<div style="padding-left:10px;">Area Mean: None</div>
+							<br>
+							<div style="padding-left:10px;">Area SE: None</div>
+							<br>
+							<div style="padding-left:10px;">Area Worst: None</div>
+							<br>
+							<div style="padding-left:10px;">Perimeter Mean: None</div>
+							<br>
+							<div style="padding-left:10px;">Perimeter Worst: None</div>
+						</div>
+					</div>
+					{% else %}
+						{% if which == 'pre' %}
+							<div id="show_class" style="display: none;float: left;margin-top: 10px;width: 190px;height: 250px;margin-left: 60px;">
+								<b>Classifaction results</b>
+								<br/><br/>
+								<div class="panel panel-primary" style="height: 250px;">
+									<div style="padding-left:10px;padding-top: 5px;">Area Mean: None</div>
+									<br>
+									<div style="padding-left:10px;">Area SE: None</div>
+									<br>
+									<div style="padding-left:10px;">Area Worst: None</div>
+									<br>
+									<div style="padding-left:10px;">Perimeter Mean: None</div>
+									<br>
+									<div style="padding-left:10px;">Perimeter Worst: None</div>
+								</div>
+							</div>
+							<div id="show_pred" style="display: block;float: left;margin-top: 10px;width: 190px;height: 250px;margin-left: 60px;">
+								<b>Prediction results</b>
+								<br/><br/>
+								<div class="panel panel-primary" style="height: 250px;">
+									{% for i in final_value_dict.keys() %}
+										<div style="padding-left:10px;padding-top: 5px;">{{i}}: {{final_value_dict[i]}}</div>
+									{% endfor %}
+									<br>
+									<div style="padding-left:10px;padding-top: 5px;">
+										The prediction of {{final_result[0]}} is:
+										<br>
+										{{final_result[1]}}	
+									</div>					
+								</div>
+							</div>
+						{% elif which == 'class' %}
+							<div id="show_class" style="display: block;float: left;margin-top: 10px;width: 190px;height: 260px;margin-left: 60px;">
+								<b>Classifaction results</b>
+								<br/><br/>
+								<div class="panel panel-primary" style="height: 260px;">
+									{% for i in final_value_dict.keys() %}
+										<div style="padding-left:10px;padding-top: 5px;">{{i}}: {{final_value_dict[i]}}</div>
+									{% endfor %}
+									<p/>
+									<div style="padding-left:10px;padding-top: 5px;">
+										The classification of {{final_result[0]}} is: &nbsp;{{final_result[1]}}	
+									</div>
+									<p/>
+									<div style="padding-left:10px;">
+										{% if final_result[1] ==  'Malignant' %}
+										Unfortunately, you are likely to have cancer...&nbsp;😔
+										{% else %}
+										Good news, you have a 95% chance of getting away from cancer!&nbsp;😄	
+										{% endif %}
+									</div>			
+								</div>
+							</div>
+							<div id="show_pred" style="display: none;float: left;margin-top: 10px;width: 190px;height: 250px;margin-left: 60px;">
+								<b>Prediction results</b>
+								<br/><br/>
+								<div class="panel panel-primary" style="height: 250px;">
+									<div style="padding-left:10px;padding-top: 5px;">Diagnosis: None</div>
+									<br>
+									<div style="padding-left:10px;">Area Mean: None</div>
+									<br>
+									<div style="padding-left:10px;">Area SE: None</div>
+									<br>
+									<div style="padding-left:10px;">Area Worst: None</div>
+									<br>
+									<div style="padding-left:10px;">Perimeter Mean: None</div>
+									<br>
+									<div style="padding-left:10px;">Perimeter Worst: None</div>
+								</div>
+							</div>
+						{% endif %}
+					{% endif %}
+						<div style="float: left;width: 270px;margin-top: 10px; height: 250px;padding-left: 30px;">
+							<b>Desription of all features</b>
+							<br/><br/>
+							<div class="panel panel-danger" style="height: 250px;overflow-y: auto;" >
+								{% for i in description_dict.keys() %}
+									<div style="padding-left:10px;padding-right:10px;padding-top: 5px;"><b>{{i}}:</b> <font style="color: gray;">{{description_dict[i]}}</font></div>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+					<div style="margin-left: 20px;">
+						<button type="submit" class="btn btn-success" style="margin-left: 10px;">Submit</button>
+						<a href='/' class="btn btn-danger" style="margin-left: 10px;">Clear</a>
+					</div>
+				</form>
+			</div>
+			<br/><br/>
+			<h3 style="margin-left: 19%; display: inline;">Dataset</h3>
+			&emsp;
+			<a id='Show_all' style="display: inline;">Show / Hide</a>
+			<br/><br/>
+			<div id='All_data' class="panel panel-success" style = "display: none; height: 600px; overflow-x: scroll;overflow-y: scroll;position: relative;margin-left: 19%;width: 850px;">
+	        	<iframe src="{{url_for('static', filename='test4.html')}}" height="600px" width="1200px"></iframe>
+    		</div>
+    		<div style="height: 100px;margin-top: 10px;background: linear-gradient(to top, rgba(255,255,255,0),rgba(255,255,255,0), rgba(255,255,255,0), rgba(255,255,255,1)), url('../static/footer.png') no-repeat center;background-size: cover;">
+    			<center style="padding-top: 40px;">
+    				<font><b>COURSE: COMP9321&emsp;&emsp;&emsp;&emsp;GROUP: FreshCoke</b></font>
+    				<p/><p/>
+    				From Wisconsin (Diagnostic) Data Set
+    			</center>
+    		</div>
+		</div>
+		<script>
+			$(function(){
+                $("#Classification").click(function () {
+                    $("#Classification_div").css('display','block');
+                    $("#prediction_div").css('display','none');
+                    $("#show_class").css('display','block');
+                    $("#show_pred").css('display','none');
+                    $("#if_pre").attr("value","0");
+                    $("#if_clas").attr("value","1");
+                    $("#Classification").attr("class","active");
+                    $("#Prediction").attr("class","");
+                    $("#border_large").css('height','380');
+                    $("#cla_am").attr('required',true);
+                    $("#cla_as").attr('required',true);
+                    $("#cla_aw").attr('required',true);
+                    $("#cla_pm").attr('required',true);
+                    $("#cla_pw").attr('required',true);
+                    $("#pre_am").attr('required',false);
+                    $("#pre_as").attr('required',false);
+                    $("#pre_aw").attr('required',false);
+                    $("#pre_pm").attr('required',false);
+                    $("#pre_pw").attr('required',false);
+                    $("#h4_cla").css('display','block');
+                    $("#h4_pre").css('display','none'); 
+                 })
+              })
+        </script>
+        <script>
+			$(function(){
+                $("#Prediction").click(function () {
+                    $("#Classification_div").css('display','none');
+                    $("#prediction_div").css('display','block');
+                    $("#show_class").css('display','none');
+                    $("#show_pred").css('display','block');
+                    $("#if_pre").attr("value","1");
+                    $("#if_clas").attr("value","0");
+                    $("#Classification").attr("class","");
+                    $("#Prediction").attr("class","active");
+                    $("#border_large").css('height','480');
+                    $("#cla_am").attr('required',false);
+                    $("#cla_as").attr('required',false);
+                    $("#cla_aw").attr('required',false);
+                    $("#cla_pm").attr('required',false);
+                    $("#cla_pw").attr('required',false);
+                    $("#pre_am").attr('required',true);
+                    $("#pre_as").attr('required',true);
+                    $("#pre_aw").attr('required',true);
+                    $("#pre_pm").attr('required',true);
+                    $("#pre_pw").attr('required',true);
+                    $("#h4_cla").css('display','none');
+                    $("#h4_pre").css('display','block');                    
+                 })
+              })
+        </script>
+        <script>
+        	function choose(){
+				if ($('#Choose').val() == 'area_mean'){
+					$("#pre_am").attr("disabled",true);
+					$("#pre_as").attr("disabled",false);
+					$("#pre_aw").attr("disabled",false);
+					$("#pre_pm").attr("disabled",false);
+					$("#pre_pw").attr("disabled",false);
+					
+				}
+				else if ($('#Choose').val() == 'area_se') {
+					$("#pre_am").attr("disabled",false);
+					$("#pre_as").attr("disabled",true);
+					$("#pre_aw").attr("disabled",false);
+					$("#pre_pm").attr("disabled",false);
+					$("#pre_pw").attr("disabled",false);
+				}
+				else if ($('#Choose').val() == 'area_worst') {
+					$("#pre_am").attr("disabled",false);
+					$("#pre_as").attr("disabled",false);
+					$("#pre_aw").attr("disabled",true);
+					$("#pre_pm").attr("disabled",false);
+					$("#pre_pw").attr("disabled",false);
+				}
+				else if ($('#Choose').val() == 'perimeter_mean') {
+					$("#pre_am").attr("disabled",false);
+					$("#pre_as").attr("disabled",false);
+					$("#pre_aw").attr("disabled",false);
+					$("#pre_pm").attr("disabled",true);
+					$("#pre_pw").attr("disabled",false);
+				}
+				else if ($('#Choose').val() == 'perimeter_worst') {
+					$("#pre_am").attr("disabled",false);
+					$("#pre_as").attr("disabled",false);
+					$("#pre_aw").attr("disabled",false);
+					$("#pre_pm").attr("disabled",false);
+					$("#pre_pw").attr("disabled",true);
+				}
+				else{
+					$("#pre_am").attr("disabled",false);
+					$("#pre_as").attr("disabled",false);
+					$("#pre_aw").attr("disabled",false);
+					$("#pre_pm").attr("disabled",false);
+					$("#pre_pw").attr("disabled",false);
+				}
+			};
+        </script>
+        <script type="text/javascript">
+        	$(function () {
+  				$('[data-toggle="popover"]').popover()
+			})
+        </script>
+        <script>
+			$(function(){
+                $("#Show_all").click(function () {
+                    $("#All_data").toggle();                  
+                 })
+              })
+        </script>
+        <script>
+			$(function(){
+                $("#question").mouseover(function () {
+                    $("#question").click();                  
+                 })
+                $("#question").mouseout(function () {
+                    $("#question").click();                  
+                 })
+              })
+        </script>
+        <script>
+			$(function(){
+                $("#question2").mouseover(function () {
+                    $("#question2").click();                  
+                 })
+                $("#question2").mouseout(function () {
+                    $("#question2").click();                  
+                 })
+              })
+        </script>
+	</body>
+</html>
